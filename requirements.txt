@@ -1,9 +1,9 @@
-streamlit==1.46.1
-pandas==2.3.1
-numpy==2.3.1
-scikit-learn==1.7.0
-joblib==1.5.1
-plotly==6.2.0
-openpyxl==3.1.5
-Pillow==11.3.0
+streamlit
+pandas
+numpy
+scikit-learn
+joblib
+plotly
+openpyxl
+Pillow
 reportlab
