@@ -462,7 +462,7 @@ if prediksi:
         st.error(str(e))
         st.stop()
 
-if predisi:
+if prediksi:
 
     hasil = model.predict(data_scaled)
     probabilitas = model.predict_proba(data_scaled)
