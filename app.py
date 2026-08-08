@@ -56,19 +56,12 @@ model, scaler, label_encoder = load_model()
 # ==========================================================
 # SESSION STATE
 # ==========================================================
-
 DEFAULT_STATE = {
-
     "nama": "",
-    "angkatan": "2021",
-    "jenis_kelamin": "Laki-laki",
-    "semester": "8",
-
     "karier": None,
     "confidence": 0,
     "probabilitas": None,
     "ranking": None,
-
     "hasil": False
 }
 
@@ -107,75 +100,23 @@ left, right = st.columns(
     [9, 1],
     gap="large"
 )
-
 # ==========================================================
 # PANEL KIRI
 # ==========================================================
-with left:
-    st.markdown("## 👤 Profil Mahasiswa")
+st.markdown("## 👤 Profil Mahasiswa")
 
-    col1, col2 = st.columns(2)
+nama = st.text_input(
+    "Nama Lengkap *",
+    value=st.session_state["nama"],
+    placeholder="Masukkan nama lengkap"
+)
 
-    with col1:
-        nama = st.text_input(
-            "Nama Lengkap *",
-            value=st.session_state["nama"],
-            placeholder="Masukkan nama lengkap"
-        )
-
-    with col2:
-        angkatan = st.selectbox(
-            "Angkatan *",
-            [
-                "2021",
-                "2022",
-                "2023",
-                "2024",
-                "2025"
-            ],
-            index=[
-                "2021",
-                "2022",
-                "2023",
-                "2024",
-                "2025"
-            ].index(st.session_state["angkatan"])
-        )
-
-    col3, col4 = st.columns(2)
-    with col3:
-
-        jenis_kelamin = st.selectbox(
-            "Jenis Kelamin *",
-            [
-                "Laki-laki",
-                "Perempuan"
-            ]
-        )
-
-    with col4:
-        semester = st.selectbox(
-            "Semester *",
-            [
-                "6",
-                "7",
-                "8",
-                "9",
-                "10"
-            ]
-        )
-
-    # Simpan Session
-    st.session_state["nama"] = nama
-    st.session_state["angkatan"] = angkatan
-    st.session_state["jenis_kelamin"] = jenis_kelamin
-    st.session_state["semester"] = semester
+# Simpan Session
+st.session_state["nama"] = nama
 
 st.divider()
-
 # Set konfigurasi halaman
 st.set_page_config(page_title="Sistem Rekomendasi Karier", page_icon="📝", layout="wide")
-
 # ==========================================================
 # CUSTOM CSS UNTUK VISUAL YANG LEBIH BAGUS
 # ==========================================================
@@ -252,7 +193,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
 # ==========================================================
 # HEADER & PETUNJUK
 # ==========================================================
@@ -270,7 +210,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 # ==========================================================
 # FUNGSI RADIO
 # ==========================================================
@@ -508,21 +447,22 @@ st.divider()
 
 st.header("🎯 Hasil Rekomendasi Karier")
 
-st.markdown("""
+nama = st.session_state.get("nama", "Pengguna")
+
+st.markdown(f"""
+Halo, **{nama}**! 👋
+
 Sistem telah menganalisis jawaban assessment menggunakan algoritma
 **K-Nearest Neighbor (KNN)** berdasarkan hasil assessment dan profil
 pendukung yang Anda berikan. Berikut merupakan hasil interpretasi
 rekomendasi karier yang diperoleh.
 """)
 
-if st.session_state.get("confidence") is None:
-    st.stop()
-
-confidence = st.session_state["confidence"]
-
 if confidence >= 85:
 
-    st.success("""
+    st.success(f"""
+Selamat **{nama}**! 🎉
+
 Profil Anda menunjukkan tingkat kecocokan yang **sangat baik** terhadap
 profesi yang direkomendasikan. Hal ini mengindikasikan bahwa kompetensi,
 minat, dan kemampuan yang dimiliki telah sesuai dengan karakteristik
@@ -535,7 +475,8 @@ sertifikasi yang relevan.
 
 elif confidence >= 70:
 
-    st.info("""
+    st.info(f"""
+**{nama}**,
 Profil Anda menunjukkan tingkat kecocokan yang **baik** terhadap profesi
 yang direkomendasikan. Kompetensi dasar yang dimiliki sudah cukup sesuai,
 namun masih terdapat beberapa aspek yang dapat dikembangkan agar lebih
@@ -544,7 +485,8 @@ siap bersaing di dunia kerja.
 
 elif confidence >= 50:
 
-    st.warning("""
+    st.warning(f"""
+**{nama}**,
 Profil Anda memiliki **potensi** pada profesi yang direkomendasikan.
 Meskipun demikian, masih diperlukan peningkatan kompetensi melalui
 pelatihan, penyelesaian proyek, maupun pengalaman praktik agar kesiapan
@@ -553,7 +495,8 @@ karier semakin optimal.
 
 else:
 
-    st.error("""
+    st.error(f"""
+**{nama}**,
 Profil Anda masih memerlukan pengembangan lebih lanjut agar sesuai dengan
 kebutuhan profesi yang direkomendasikan. Disarankan untuk memperdalam
 kompetensi dasar, mengikuti pelatihan, dan melakukan assessment kembali
