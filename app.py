@@ -90,8 +90,7 @@ st.markdown(
         <div class="hero-title">🎓 Sistem Rekomendasi Karier Mahasiswa Sistem Informasi</div>
         <p class="hero-description">
             Aplikasi ini membantu mahasiswa memperoleh rekomendasi karier
-            berdasarkan hasil assessment menggunakan algoritma 
-            <span class="knn-badge">K-Nearest Neighbor (KNN)</span>.
+            berdasarkan hasil assessment
         </p>
     </div>
     """,
