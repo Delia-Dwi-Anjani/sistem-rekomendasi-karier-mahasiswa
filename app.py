@@ -342,6 +342,9 @@ if prediksi:
 
     # Data input
     data_input = [[
+        jenis_kelamin,
+        tahun_kelulusan,
+
         st.session_state["q1"],
         st.session_state["q2"],
         st.session_state["q3"],
@@ -391,6 +394,19 @@ if prediksi:
     except Exception as e:
         st.error(f"Terjadi kesalahan: {e}")
         st.stop()
+
+if prediksi:
+
+    hasil = model.predict(data_scaled)
+    probabilitas = model.predict_proba(data_scaled)
+
+    confidence = float(np.max(probabilitas) * 100)
+
+    karier = label_encoder.inverse_transform(hasil)[0]
+
+    st.session_state["probabilitas"] = probabilitas
+    st.session_state["confidence"] = confidence
+    st.session_state["Bidang Pekerjaan"] = karier
 # ==========================================================
 # DEFINE DEFAULT SKOR (Agar tidak NameError)
 # ==========================================================
