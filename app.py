@@ -515,6 +515,11 @@ pendukung yang Anda berikan. Berikut merupakan hasil interpretasi
 rekomendasi karier yang diperoleh.
 """)
 
+if st.session_state.get("confidence") is None:
+    st.stop()
+
+confidence = st.session_state["confidence"]
+
 if confidence >= 85:
 
     st.success("""
