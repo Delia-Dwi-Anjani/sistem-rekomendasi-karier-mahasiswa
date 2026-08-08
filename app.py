@@ -330,33 +330,18 @@ prediksi = st.button(
 
 if prediksi:
 
+    # Validasi semua pertanyaan sudah dijawab
     belum = []
-
     for i in range(1, 26):
         if st.session_state[f"q{i}"] is None:
             belum.append(i)
 
-    if len(belum) > 0:
+    if belum:
         st.error("⚠️ Masih ada pertanyaan assessment yang belum dijawab.")
         st.stop()
 
-    jenis_kelamin = 1 if st.session_state["jenis_kelamin"] == "Laki-laki" else 0
-
-    # Samakan encoding dengan saat training
-    angkatan_map = {
-        "2021": 0,
-        "2022": 1,
-        "2023": 2,
-        "2024": 3,
-        "2025": 4
-    }
-
-    tahun_kelulusan = angkatan_map[st.session_state["angkatan"]]
-
+    # Data input
     data_input = [[
-        jenis_kelamin,
-        tahun_kelulusan,
-
         st.session_state["q1"],
         st.session_state["q2"],
         st.session_state["q3"],
@@ -385,34 +370,27 @@ if prediksi:
     ]]
 
     # Validasi jumlah fitur
-    if len(data_input[0]) != 27:
-        st.error(f"Jumlah fitur tidak sesuai. Ditemukan {len(data_input[0])} fitur, seharusnya 27.")
-        st.stop()
-
-    # Validasi tidak boleh ada nilai kosong
-    if any(x is None for x in data_input[0]):
-        st.error("Masih ada pertanyaan yang belum dijawab.")
+    if len(data_input[0]) != 25:
+        st.error(f"Jumlah fitur tidak sesuai. Ditemukan {len(data_input[0])} fitur, seharusnya 25.")
         st.stop()
 
     try:
         data_scaled = scaler.transform(data_input)
+
+        hasil = model.predict(data_scaled)
+        probabilitas = model.predict_proba(data_scaled)
+
+        confidence = float(np.max(probabilitas) * 100)
+        karier = label_encoder.inverse_transform(hasil)[0]
+
+        st.session_state["probabilitas"] = probabilitas
+        st.session_state["confidence"] = confidence
+        st.session_state["karier"] = karier
+        st.session_state["hasil"] = True
+
     except Exception as e:
-        st.error(str(e))
+        st.error(f"Terjadi kesalahan: {e}")
         st.stop()
-
-if prediksi:
-
-    hasil = model.predict(data_scaled)
-    probabilitas = model.predict_proba(data_scaled)
-
-    confidence = float(np.max(probabilitas) * 100)
-
-    karier = label_encoder.inverse_transform(hasil)[0]
-
-    st.session_state["probabilitas"] = probabilitas
-    st.session_state["confidence"] = confidence
-    st.session_state["Bidang Pekerjaan"] = karier
-
 # ==========================================================
 # DEFINE DEFAULT SKOR (Agar tidak NameError)
 # ==========================================================
