@@ -42,16 +42,19 @@ load_css()
 # ==========================================================
 # LOAD MODEL
 # ==========================================================
+from pathlib import Path
+import joblib
+
+BASE_DIR = Path(__file__).parent
 
 @st.cache_resource
 def load_model():
-    model = joblib.load("model/model_knn.pkl")
-    scaler = joblib.load("model/scaler.pkl")
-    label_encoder = joblib.load("model/label_encoder.pkl")
+    model = joblib.load(BASE_DIR / "model" / "model_knn.pkl")
+    scaler = joblib.load(BASE_DIR / "model" / "scaler.pkl")
+    label_encoder = joblib.load(BASE_DIR / "model" / "label_encoder.pkl")
     return model, scaler, label_encoder
 
 model, scaler, label_encoder = load_model()
-
 # ==========================================================
 # SESSION STATE
 # ==========================================================
