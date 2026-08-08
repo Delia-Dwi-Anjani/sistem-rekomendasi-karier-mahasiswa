@@ -57,7 +57,12 @@ model, scaler, label_encoder = load_model()
 # SESSION STATE
 # ==========================================================
 DEFAULT_STATE = {
+
     "nama": "",
+    "angkatan": "2021",
+    "jenis_kelamin": "Laki-laki",
+    "semester": "8",
+
     "karier": None,
     "confidence": 0,
     "probabilitas": None,
@@ -76,7 +81,6 @@ for i in range(1, 26):
 # ==========================================================
 # HEADER
 # ==========================================================
-
 st.markdown(
     """
     <div class="hero-card">
@@ -103,16 +107,65 @@ left, right = st.columns(
 # ==========================================================
 # PANEL KIRI
 # ==========================================================
-st.markdown("## 👤 Profil Mahasiswa")
+with left:
+    st.markdown("## 👤 Profil Mahasiswa")
 
-nama = st.text_input(
-    "Nama Lengkap *",
-    value=st.session_state["nama"],
-    placeholder="Masukkan nama lengkap"
-)
+    col1, col2 = st.columns(2)
 
-# Simpan Session
-st.session_state["nama"] = nama
+    with col1:
+        nama = st.text_input(
+            "Nama Lengkap *",
+            value=st.session_state["nama"],
+            placeholder="Masukkan nama lengkap"
+        )
+
+    with col2:
+        angkatan = st.selectbox(
+            "Angkatan *",
+            [
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+            ],
+            index=[
+                "2021",
+                "2022",
+                "2023",
+                "2024",
+                "2025"
+            ].index(st.session_state["angkatan"])
+        )
+
+    col3, col4 = st.columns(2)
+    with col3:
+
+        jenis_kelamin = st.selectbox(
+            "Jenis Kelamin *",
+            [
+                "Laki-laki",
+                "Perempuan"
+            ]
+        )
+
+    with col4:
+        semester = st.selectbox(
+            "Semester *",
+            [
+                "6",
+                "7",
+                "8",
+                "9",
+                "10"
+            ]
+        )
+
+    # Simpan Session
+    st.session_state["nama"] = nama
+    st.session_state["angkatan"] = angkatan
+    st.session_state["jenis_kelamin"] = jenis_kelamin
+    st.session_state["semester"] = semester
 
 st.divider()
 # Set konfigurasi halaman
@@ -246,7 +299,6 @@ with tab1:
     tampil_radio(3, "Saya menikmati mencari dan memperbaiki kesalahan (bug) pada kode program.")
     tampil_radio(4, "Saya tertarik mengembangkan sistem atau aplikasi sesuai kebutuhan pengguna.")
     tampil_radio(5, "Saya senang melakukan pengujian (testing) untuk memastikan aplikasi berjalan dengan baik.")
-
 # ======================================================
 # BAGIAN 2 - DATA ANALYST
 # ======================================================
@@ -256,7 +308,6 @@ with tab2:
     tampil_radio(8, "Saya suka menggunakan Python atau bahasa pemrograman lainnya untuk mengolah data.")
     tampil_radio(9, "Saya senang melakukan pengolahan data sebelum proses analisis.")
     tampil_radio(10, "Saya menikmati menyusun laporan berdasarkan hasil analisis data.")
-
 # ======================================================
 # BAGIAN 3 - SYSTEM ANALYST
 # ======================================================
@@ -266,7 +317,6 @@ with tab3:
     tampil_radio(13, "Saya tertarik mempelajari konsep SDLC, basis data, dan dasar pemrograman.")
     tampil_radio(14, "Saya senang membuat perancangan basis data menggunakan Entity Relationship Diagram (ERD).")
     tampil_radio(15, "Saya menikmati melakukan analisis dan perancangan sistem sesuai kebutuhan pengguna.")
-
 # ======================================================
 # BAGIAN 4 - IT SUPPORT
 # ======================================================
@@ -276,7 +326,6 @@ with tab4:
     tampil_radio(18, "Saya tertarik mempelajari konfigurasi dan pemeliharaan jaringan komputer.")
     tampil_radio(19, "Saya senang membantu pengguna menyelesaikan permasalahan perangkat keras maupun perangkat lunak.")
     tampil_radio(20, "Saya suka menangani permasalahan teknis yang berkaitan dengan perangkat komputer.")
-
 # ======================================================
 # BAGIAN 5 - UI/UX DESIGNER
 # ======================================================
@@ -286,11 +335,9 @@ with tab5:
     tampil_radio(23, "Saya suka membuat wireframe sebelum mendesain aplikasi atau website.")
     tampil_radio(24, "Saya senang membuat desain antarmuka yang menarik dan mudah digunakan.")
     tampil_radio(25, "Saya tertarik melakukan usability testing untuk mengevaluasi pengalaman pengguna.")
-
 # ==========================================================
 # PROGRESS
 # ==========================================================
-
 jumlah_jawab = sum(
     st.session_state[f"q{i}"] is not None
     for i in range(1,26)
@@ -303,11 +350,9 @@ st.progress(progress)
 st.caption(
     f"Progress Assessment : {jumlah_jawab}/25 Pertanyaan"
 )
-
 # ==========================================================
 # VALIDASI
 # ==========================================================
-
 belum = []
 
 for i in range(1, 26):
@@ -330,17 +375,29 @@ prediksi = st.button(
 
 if prediksi:
 
-    # Validasi semua pertanyaan sudah dijawab
     belum = []
+
     for i in range(1, 26):
         if st.session_state[f"q{i}"] is None:
             belum.append(i)
 
-    if belum:
+    if len(belum) > 0:
         st.error("⚠️ Masih ada pertanyaan assessment yang belum dijawab.")
         st.stop()
 
-    # Data input
+    jenis_kelamin = 1 if st.session_state["jenis_kelamin"] == "Laki-laki" else 0
+
+    # Samakan encoding dengan saat training
+    angkatan_map = {
+        "2021": 0,
+        "2022": 1,
+        "2023": 2,
+        "2024": 3,
+        "2025": 4
+    }
+
+    tahun_kelulusan = angkatan_map[st.session_state["angkatan"]]
+
     data_input = [[
         jenis_kelamin,
         tahun_kelulusan,
@@ -373,26 +430,19 @@ if prediksi:
     ]]
 
     # Validasi jumlah fitur
-    if len(data_input[0]) != 25:
-        st.error(f"Jumlah fitur tidak sesuai. Ditemukan {len(data_input[0])} fitur, seharusnya 25.")
+    if len(data_input[0]) != 27:
+        st.error(f"Jumlah fitur tidak sesuai. Ditemukan {len(data_input[0])} fitur, seharusnya 27.")
+        st.stop()
+
+    # Validasi tidak boleh ada nilai kosong
+    if any(x is None for x in data_input[0]):
+        st.error("Masih ada pertanyaan yang belum dijawab.")
         st.stop()
 
     try:
         data_scaled = scaler.transform(data_input)
-
-        hasil = model.predict(data_scaled)
-        probabilitas = model.predict_proba(data_scaled)
-
-        confidence = float(np.max(probabilitas) * 100)
-        karier = label_encoder.inverse_transform(hasil)[0]
-
-        st.session_state["probabilitas"] = probabilitas
-        st.session_state["confidence"] = confidence
-        st.session_state["karier"] = karier
-        st.session_state["hasil"] = True
-
     except Exception as e:
-        st.error(f"Terjadi kesalahan: {e}")
+        st.error(str(e))
         st.stop()
 
 if prediksi:
